@@ -1,0 +1,100 @@
+---
+# {% set directories_to_create = [] %}
+# {%- for var in [
+#   "supervisord_directory",
+#   "supervisord_conf_file"
+# ]: -%}
+#   {%- if value = locals().get(var): -%}
+#     {%- do directories_to_create.append(value) -%}
+#   {%- endif -%}
+# {%- endfor -%}
+
+# -------------------------------------------------------
+# Install python tools
+- name: install python setuptools for supervisord
+  sudo: yes
+  action:  "{{ ansible_pkg_mgr }} name=python-setuptools state=present"
+  tags:
+    - install
+    - supervisord
+
+# -------------------------------------------------------
+# Use easy_install to install the software as it's the
+# recommended way:  http://supervisord.org/installing.html
+#
+- name: easy_install supervisor
+  sudo: true
+  command:  easy_install supervisor
+  tags:
+    - install
+    - supervisord
+
+
+# -------------------------------------------------------
+# Make appropriate directories for configs, logs, and initialization
+#
+- name: create supervisord logging directories
+  sudo: true
+  file: dest=item state=directory
+  with_items: supervisor_directories | unique
+
+- name: create config directories
+  sudo: true
+  file:  dest="{{ item | dirname }}" state=directory
+  with_items: supervisord_include_files | unique
+
+
+# -------------------------------------------------------
+# Install supervisord configuration file
+#
+
+- name: install supervisord configuration file
+  sudo: true
+  template:
+    src: supervisord.conf
+    dest: "{{ supervisord_conf_file }}"
+  tags:
+    - install
+    - supervisord
+
+# -------------------------------------------------------
+# Install appropriate operating system run script
+#
+
+- name: install supervisord initialization script
+  sudo: true
+  template:
+    src: "{{ item }}"
+    dest: "{{ supervisord_init_file }}"
+    mode: 0755
+  with_first_found:
+    - files:
+        - "{{ ansible_os_family }}"
+      paths:
+        -  ../templates/init.d/
+  tags:
+    - install
+    - supervisord
+
+
+# -------------------------------------------------------
+# Make sure service runs on reboot
+#
+
+- name: enable supervisord to start on boot
+  sudo: true
+  service: name="{{ supervisord_service_name }}" enabled=yes
+  tags:
+    - install
+    - supervisord
+
+
+# -------------------------------------------------------
+# Make sure the service is not running right now before
+# we start it up.
+#
+- name: make sure supervisord isn't running.
+  service: name={{ supervisord_service_name }} state=stopped
+  ignore_errors: true
+  notify:
+    - supervisord start

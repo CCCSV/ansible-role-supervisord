@@ -1,0 +1,20 @@
+---
+- name: supervisord start
+  sudo: yes
+  service: name={{ supervisord_service_name }} state=started
+
+- name: supervisord stop
+  sudo: yes
+  service: name={{ supervisord_service_name }} state=stopped
+
+- name: supervisord restart
+  sudo: yes
+  service: name={{ supervisord_service_name }} state=restarted
+
+- name: supervisorctl reread
+  sudo: yes
+  command: "{{ supervisord_ctlprogram_name }} reread"
+
+- name: supervisorctl update
+  sudo: yes
+  command: "{{ supervisord_ctlprogram_name }} update"
