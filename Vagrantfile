@@ -22,7 +22,7 @@ MACHINES = [
 
 ANSIBLE = {
 	"groups" => {
-		"test" => [ "ubuntu01", "centos01" ]
+		"test" => [ "test-ubuntu01", "test-centos01" ]
 	}
 }
 
