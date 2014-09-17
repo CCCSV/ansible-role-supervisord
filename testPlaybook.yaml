@@ -26,4 +26,4 @@
     #   apt: update_cache=yes
 
   roles:
-    - '.'    # The current directory itself is the role
+    - { role: '.', supervisord_loglevel: trace }    # The current directory itself is the role

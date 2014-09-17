@@ -33,7 +33,7 @@
 # -------------------------------------------------------
 # Make appropriate directories for configs, logs, and initialization
 #
-- name: create supervisord logging directories
+- name: create supervisord directories
   sudo: true
   file: dest=item state=directory
   with_items: supervisor_directories | unique
@@ -96,5 +96,15 @@
 - name: make sure supervisord isn't running.
   service: name={{ supervisord_service_name }} state=stopped
   ignore_errors: true
-  notify:
-    - supervisord start
+  tags:
+    - install
+    - supervisord
+
+
+- name: start supervisord
+  sudo: yes
+  service: name="{{ supervisord_service_name }}" state=started pattern="/usr/bin/python /usr/bin/supervisord"
+  register: start_supervisord
+  tags:
+    - install
+    - supervisord
