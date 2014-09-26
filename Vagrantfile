@@ -32,7 +32,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision :ansible do |ansible|
     ansible.sudo = true
-    ansible.playbook = "testPlaybook.yaml"
+    ansible.playbook = "test.yaml"
     ansible.verbose = "v"
     ansible.host_key_checking = false
 

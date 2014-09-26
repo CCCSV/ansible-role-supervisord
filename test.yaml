@@ -26,4 +26,11 @@
     #   apt: update_cache=yes
 
   roles:
-    - { role: '.', supervisord_loglevel: trace }    # The current directory itself is the role
+    - role: '.'
+      supervisord_loglevel: trace
+      supervisord_program_configs:
+        - program:  log_emitter
+          command: /home/clduser/bin/log_emitter
+          directory:  /home/clduser/bin
+          stdout_logfile: /tmp/log_emitter_stdout.log
+          stderr_logfile: /tmp/log_emitter_stderr.log

@@ -7,6 +7,7 @@
 supervisord_program_name: supervisord
 supervisord_ctlprogram_name: supervisorctl
 supervisord_conf_file: /etc/supervisord.conf
+supervisord_conf_program_dir: /etc/supervisord.d
 supervisord_service_name: supervisord
 supervisord_init_file: "/etc/init.d/{{ supervisord_service_name }}"
 
@@ -70,6 +71,7 @@ supervisord_ctl_history_file: ~/.sc_history  # use readline history if available
 # supervisor.
 
 #[program:theprogramname]
+supervisord_program_configs:  ~
 #command=/bin/cat              # the program (relative uses PATH, can take args)
 #process_name=%(program_name)s # process_name expr (default %(program_name)s)
 #numprocs=1                    # number of processes copies to start (def 1)
@@ -156,6 +158,7 @@ supervisord_include_files:
 
 supervisor_directories:
   - "{{ supervisord_conf_file | expanduser | dirname }}"
+  - "{{ supervisord_conf_program_dir | expanduser }}"
   - "{{ supervisord_init_file | expanduser | dirname }}"
   - "{{ supervisord_unix_file | expanduser | dirname }}"
   - "{{ supervisord_logfile | expanduser | dirname }}"
