@@ -35,12 +35,12 @@
 #
 - name: create supervisord directories
   sudo: true
-  file: dest=item state=directory
+  file: dest="{{ item }}" state=directory
   with_items: supervisor_directories | unique
 
 - name: create config directories
   sudo: true
-  file:  dest="{{ item | dirname }}" state=directory
+  file: dest="{{ item | dirname }}" state=directory
   with_items: supervisord_include_files | unique
 
 
