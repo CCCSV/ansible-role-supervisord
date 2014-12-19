@@ -165,4 +165,4 @@ supervisor_directories:
   - "{{ supervisord_pidfile | expanduser | dirname }}"
   - "{{ supervisord_directory | expanduser }}"
   - "{{ supervisord_childlogdir | expanduser }}"
-  - "{{ supervisord_ctl_history_file | expanduser | dirname }}"
+#  - "{{ supervisord_ctl_history_file | dirname }}"

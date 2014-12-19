@@ -57,21 +57,6 @@
     - install
     - supervisord
 
-# -------------------------------------------------------
-# Install supervisord program configuration files
-#
-
-- name: install supervisord program configuration files
-  sudo: true
-  template:
-    src: etc_supervisord.d_program.conf
-    dest: "{{ supervisord_conf_program_dir }}/{{ item.program }}.conf"
-  with_items: supervisord_program_configs
-  tags:
-    - install
-    - supervisord
-
-
 
 # -------------------------------------------------------
 # Install appropriate operating system run script
@@ -108,11 +93,10 @@
 # -------------------------------------------------------
 # Make sure the service is not running right now before
 # we start it up.
-#
+
 - name: make sure supervisord isn't running.
   sudo: true
   service: name={{ supervisord_service_name }} state=stopped
-  ignore_errors: true
   tags:
     - install
     - supervisord
@@ -121,8 +105,27 @@
 - name: start supervisord
   sudo: true
   service: name="{{ supervisord_service_name }}" state=started pattern="/usr/bin/python /usr/bin/supervisord"
-  ignore_errors: true
-  register: start_supervisord
   tags:
     - install
     - supervisord
+
+
+# -------------------------------------------------------
+# Install supervisord program configuration files
+#
+
+- name: install supervisord program configuration files
+  sudo: true
+  template:
+    src: etc_supervisord.d_program.conf
+    dest: "{{ supervisord_conf_program_dir }}/{{ item.program }}.conf"
+  with_items: supervisord_program_configs
+  notify:
+    - supervisorctl update
+  tags:
+    - install
+    - supervisord
+
+- name: to run supervisor
+  debug:
+    msg: "{{ supervisord_should_run | default(false) }}"
