@@ -11,6 +11,9 @@ supervisord_conf_program_dir: /etc/supervisord.d
 supervisord_service_name: supervisord
 supervisord_init_file: "/etc/init.d/{{ supervisord_service_name }}"
 
+# Task configurations
+supervisord_run_service_default:  true
+
 
 ##############################################################################
 #

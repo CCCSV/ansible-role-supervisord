@@ -128,4 +128,4 @@
 
 - name: to run supervisor
   debug:
-    msg: "{{ supervisord_should_run | default(false) }}"
+    msg: "{{ supervisord_should_run | default(supervisord_run_service_default) }}"
