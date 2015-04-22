@@ -21,6 +21,16 @@
 #                    subprocesses.
 ### END INIT INFO
 
+# Because supervisord has issues getting environment variables
+# into its program configs, provide an option for getting them
+# in there some other way:
+#    https://github.com/Supervisor/supervisor/issues/91
+#    https://github.com/Supervisor/supervisor/pull/550
+#
+if [ -f {{ supervisord_defaultenv_file }} ]; then
+   . {{ supervisord_defaultenv_file }}
+fi
+
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/bin/supervisord
@@ -37,10 +47,6 @@ DODTIME=5                   # Time to wait for the server to die, in seconds
                             # let some servers to die gracefully and
                             # 'restart' will not work
 
-# Include supervisor defaults if available
-if [ -f /etc/default/{{ supervisord_service_name }} ] ; then
-	. /etc/default/{{ supervisord_service_name }}
-fi
 
 set -e
 

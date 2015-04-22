@@ -10,6 +10,7 @@ supervisord_conf_file: /etc/supervisord.conf
 supervisord_conf_program_dir: /etc/supervisord.d
 supervisord_service_name: supervisord
 supervisord_init_file: "/etc/init.d/{{ supervisord_service_name }}"
+supervisord_defaultenv_file: "/etc/profile.d/{{ supervisord_service_name }}.sh"
 
 # Task configurations
 supervisord_run_service_default:  true

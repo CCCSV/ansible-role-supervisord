@@ -24,6 +24,17 @@
 # source function library
 . /etc/rc.d/init.d/functions
 
+# Because supervisord has issues getting environment variables
+# into its program configs, provide an option for getting them
+# in there some other way:
+#    https://github.com/Supervisor/supervisor/issues/91
+#    https://github.com/Supervisor/supervisor/pull/550
+#
+if [ -f {{ supervisord_defaultenv_file }} ]; then
+   . {{ supervisord_defaultenv_file }}
+fi
+
+
 set -a
 
 PREFIX=/usr
