@@ -105,6 +105,7 @@
 - name: start supervisord
   sudo: true
   service: name="{{ supervisord_service_name }}" state=started pattern="/usr/bin/python /usr/bin/supervisord"
+  when: supervisord_should_run | default(supervisord_run_service_default)
   tags:
     - install
     - supervisord
