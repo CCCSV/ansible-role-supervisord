@@ -37,10 +37,10 @@ fi
 
 set -a
 
-PREFIX=/usr
+PREFIX={{ supervisord_program_path }}
 
-SUPERVISORD=$PREFIX/bin/{{ supervisord_service_name }}
-SUPERVISORCTL=$PREFIX/bin/{{ supervisord_ctlprogram_name }}
+SUPERVISORD=$PREFIX/{{ supervisord_service_name }}
+SUPERVISORCTL=$PREFIX/{{ supervisord_ctlprogram_name }}
 
 PIDFILE=/var/run/{{ supervisord_service_name }}.pid
 LOCKFILE=/var/lock/subsys/{{ supervisord_service_name }}

@@ -4,6 +4,7 @@
 # General program configurations
 #
 
+supervisord_program_path: /usr/bin
 supervisord_program_name: supervisord
 supervisord_ctlprogram_name: supervisorctl
 supervisord_conf_file: /etc/supervisord.conf
