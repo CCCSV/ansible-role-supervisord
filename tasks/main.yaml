@@ -85,6 +85,7 @@
   service:
     name: "{{ supervisord_service_name }}"
     enabled: yes
+    use: service
   tags:
     - install
     - supervisord
@@ -99,19 +100,7 @@
   service:
     name: "{{ supervisord_service_name }}"
     state: stopped
-  tags:
-    - install
-    - supervisord
-
-
-- name: start supervisord
-  become: true
-  service:
-    name: "{{ supervisord_service_name }}"
-    state: started
-    pattern: "/usr/bin/python {{supervisord_program_path}}/supervisord"
-
-  when: supervisord_should_run | default(supervisord_run_service_default)
+    use: service
   tags:
     - install
     - supervisord
@@ -136,3 +125,23 @@
 - name: to run supervisor
   debug:
     msg: "{{ supervisord_should_run | default(supervisord_run_service_default) }}"
+
+
+- name: waiting to make sure monitoring port is closed
+  wait_for:
+      host: 0.0.0.0
+      port: 9001
+      state: stopped
+      timeout: 30
+
+- name: start supervisord
+  become: true
+  service:
+    name: "{{ supervisord_service_name }}"
+    state: started
+    pattern: "/usr/bin/python {{supervisord_program_path}}/supervisord"
+    use: service
+  when: supervisord_should_run | default(supervisord_run_service_default)
+  tags:
+    - install
+    - supervisord
