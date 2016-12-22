@@ -12,7 +12,7 @@
 # -------------------------------------------------------
 # Install python tools
 - name: install python setuptools for supervisord
-  sudo: true
+  become: true
   action:  "{{ ansible_pkg_mgr }} name=python-setuptools state=present"
   tags:
     - install
@@ -23,7 +23,7 @@
 # recommended way:  http://supervisord.org/installing.html
 #
 - name: easy_install supervisor
-  sudo: true
+  become: true
   command:  easy_install supervisor
   tags:
     - install
@@ -34,14 +34,14 @@
 # Make appropriate directories for configs, logs, and initialization
 #
 - name: create supervisord directories
-  sudo: true
+  become: true
   file: dest="{{ item }}" state=directory follow=yes
-  with_items: supervisor_directories | unique
+  with_items: "{{ supervisor_directories | unique }}"
 
 - name: create config directories
-  sudo: true
+  become: true
   file: dest="{{ item | dirname }}" state=directory follow=yes
-  with_items: supervisord_include_files | unique
+  with_items: "{{ supervisord_include_files | unique }}"
 
 
 # -------------------------------------------------------
@@ -49,7 +49,7 @@
 #
 
 - name: install supervisord configuration file
-  sudo: true
+  become: true
   template:
     src: etc_supervisord.conf
     dest: "{{ supervisord_conf_file }}"
@@ -63,16 +63,14 @@
 #
 
 - name: install supervisord initialization script
-  sudo: true
+  become: true
   template:
     src: "{{ item }}"
     dest: "{{ supervisord_init_file }}"
     mode: 0755
   with_first_found:
     - files:
-        - "{{ ansible_os_family }}"
-      paths:
-        -  ../templates/init.d/
+        - "init.d/{{ ansible_os_family }}"
   tags:
     - install
     - supervisord
@@ -83,8 +81,11 @@
 #
 
 - name: enable supervisord to start on boot
-  sudo: true
-  service: name="{{ supervisord_service_name }}" enabled=yes
+  become: true
+  service:
+    name: "{{ supervisord_service_name }}"
+    enabled: yes
+    use: service
   tags:
     - install
     - supervisord
@@ -95,17 +96,11 @@
 # we start it up.
 
 - name: make sure supervisord isn't running.
-  sudo: true
-  service: name={{ supervisord_service_name }} state=stopped
-  tags:
-    - install
-    - supervisord
-
-
-- name: start supervisord
-  sudo: true
-  service: name="{{ supervisord_service_name }}" state=started pattern="/usr/bin/python {{supervisord_program_path}}/supervisord"
-  when: supervisord_should_run | default(supervisord_run_service_default)
+  become: true
+  service:
+    name: "{{ supervisord_service_name }}"
+    state: stopped
+    use: service
   tags:
     - install
     - supervisord
@@ -116,11 +111,11 @@
 #
 
 - name: install supervisord program configuration files
-  sudo: true
+  become: true
   template:
     src: etc_supervisord.d_program.conf
     dest: "{{ supervisord_conf_program_dir }}/{{ item.program }}.conf"
-  with_items: supervisord_program_configs
+  with_items: "{{ supervisord_program_configs }}"
   notify:
     - supervisorctl update
   tags:
@@ -130,3 +125,23 @@
 - name: to run supervisor
   debug:
     msg: "{{ supervisord_should_run | default(supervisord_run_service_default) }}"
+
+
+- name: waiting to make sure monitoring port is closed
+  wait_for:
+      host: 0.0.0.0
+      port: 9001
+      state: stopped
+      timeout: 30
+
+- name: start supervisord
+  become: true
+  service:
+    name: "{{ supervisord_service_name }}"
+    state: started
+    pattern: "/usr/bin/python {{supervisord_program_path}}/supervisord"
+    use: service
+  when: supervisord_should_run | default(supervisord_run_service_default)
+  tags:
+    - install
+    - supervisord

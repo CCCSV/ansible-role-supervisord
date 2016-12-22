@@ -1,11 +1,17 @@
 ---
 - name: supervisord stop
-  sudo: yes
-  service: name={{ supervisord_service_name }} state=stopped
+  become: yes
+  service:
+    name: "{{ supervisord_service_name }}"
+    state: stopped
+    use: service
 
 - name: supervisord start
-  sudo: yes
-  service: name={{ supervisord_service_name }} state=started
+  become: yes
+  service:
+    name: "{{ supervisord_service_name }}"
+    state: started
+    use: service
   when: supervisord_run_service | default(supervisord_run_service_default)
 
 - name: supervisord restart
@@ -15,11 +21,11 @@
     - supervisord start
 
 - name: supervisorctl reread
-  sudo: yes
+  become: yes
   command: "{{ supervisord_ctlprogram_name }} reread"
   when: supervisord_run_service | default(supervisord_run_service_default)
 
 - name: supervisorctl update
-  sudo: yes
+  become: yes
   command: "{{ supervisord_ctlprogram_name }} update"
   when: supervisord_run_service | default(supervisord_run_service_default)

@@ -21,12 +21,9 @@
 
   pre_tasks:
     - debug: msg="Running test installation"
-    # - name: APT update
-    #   sudo: yes
-    #   apt: update_cache=yes
 
   roles:
-    - role: '.'
+    - role: ..
       supervisord_loglevel: trace
       supervisord_program_configs:
         - program:  log_emitter
